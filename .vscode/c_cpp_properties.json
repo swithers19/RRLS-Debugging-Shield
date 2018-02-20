@@ -1,0 +1,45 @@
+{
+    "configurations": [
+        {
+            "name": "ESP32",
+            "defines": [
+                "ESP_PLATFORM",
+                "_HAVE_STDC",
+                "CONFIG_WIFI_ENABLED",
+                "UBI_PC"
+            ],
+            "includePath": [
+                "${workspaceRoot}/build/include",
+                "C:/msys32/usr/include",
+                "C:/msys32/usr/lib/gcc/i686-pc-msys/6.3.0/include",
+                "C:/msys32/usr/lib/gcc/i686-pc-msys/6.3.0/include/c++",
+                "C:/msys32/usr/lib/gcc/i686-pc-msys/6.3.0/include/c++/i686-pc-msys",
+                "C:/ESP32-IDK-SDK/esp-idf/components/newlib/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/lwip/include/lwip/",
+                "C:/ESP32-IDK-SDK/esp-idf/components",
+                "C:/ESP32-IDK-SDK/esp-idf/components/freertos/include/",
+                "C:/ESP32-IDK-SDK/esp-idf/components/bt/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/driver/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/lwip/include/lwip/priv",
+                "C:/ESP32-IDK-SDK/esp-idf/components/bt/bluedroid/api/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/esp32/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/soc/esp32/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/log/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/esp32/include/rom",
+                "C:/ESP32-IDK-SDK/esp-idf/components/tcpip_adapter/include",
+                "C:/ESP32-IDK-SDK/esp-idf/components/lwip/include/lwip/port",
+                "C:/ESP32-IDK-SDK/esp-idf/components/nvs_flash/include",
+                "${workspaceRoot}/arduino"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceRoot}/build/Intellisense",
+                "path": [
+                    "${workspaceRoot}"
+                ]
+            },
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 3
+}
