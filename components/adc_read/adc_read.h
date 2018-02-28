@@ -13,19 +13,29 @@
 
 //ADC Config
 #include "driver/adc.h"
-#include "esp_adc_cal.h"
 
 //SPI
 #include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
 
-#define V_REF 1117
-#define ADC1_TEST_CHANNEL (ADC1_CHANNEL_6)
+#include "sdkconfig.h"
 
-void setBits(unsigned int devicePin, gpio_num_t* gpio_pin);
-void gpioConfig(gpio_num_t* multiplexPins, esp_adc_cal_characteristics_t* characteristics);
-void read_indi_pin(gpio_num_t* gpio_pin, esp_adc_cal_characteristics_t characteristics);
-void adcTask(void *pvParameter);
 
-esp_err_t spiConnect();
+#define PIN_NUM_MISO 19
+#define PIN_NUM_MOSI 23
+#define PIN_NUM_CLK  18
+#define ADC_1_CS   5
+
+
+void adcReadTask(void *pvParameters);
+
+
+
+
+esp_err_t spiBusInit(spi_bus_config_t* spiBusCfg, int reInit);
+
+esp_err_t spiDeviceConnect(spi_device_interface_config_t* adcCfg, spi_device_handle_t* spiDevHandle, int slavePin);
+
+int spiTransRead(spi_device_handle_t spiDevHandle, uint8_t cmd);
+
 int tenBitCon(uint8_t* readData);
