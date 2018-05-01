@@ -17,7 +17,10 @@ esp_err_t spiBusInit(spi_bus_config_t* spiBusCfg, int reInit)
 		ret = spi_bus_initialize(VSPI_HOST, spiBusCfg, 0);
 		if (ret == ESP_OK) {
 			busInit = 1;
+<<<<<<< HEAD
 			ESP_LOG
+=======
+>>>>>>> 9f6756f62565a14297771ed990d07d1c1675101c
 			printf("Init successful\n");
 		}
 		else {
@@ -98,6 +101,8 @@ void adcReadTask(void *pvParameters)
 	spi_device_interface_config_t adcCfg;			//adc1 device interface variable
     spi_device_handle_t adc1SpiHandle;
 	uint16_t data[8];
+<<<<<<< HEAD
+=======
 
 	spiBusInit(&spiBusCfg, 0); 	   								//Re/Initialise bus and variables
 	spiDeviceConnect(&adcCfg, &adc1SpiHandle, ADC_1_CS);		//Attach the ADC to the SPI bus
@@ -112,6 +117,29 @@ void adcReadTask(void *pvParameters)
 		fflush(stdout);
 		vTaskDelay(2000 / portTICK_PERIOD_MS);
 	}
+}
+>>>>>>> 9f6756f62565a14297771ed990d07d1c1675101c
+
+	spiBusInit(&spiBusCfg, 0); 	   								//Re/Initialise bus and variables
+	spiDeviceConnect(&adcCfg, &adc1SpiHandle, ADC_1_CS);		//Attach the ADC to the SPI bus
+
+<<<<<<< HEAD
+	while(1) {
+		//transaction definition Structure
+		for (i=0; i<8; i++) {
+			data[i] = spiTransRead(adc1SpiHandle, (8+i));
+			printf("Data[%d] %d\n", i, data[i]);
+		}
+		printf("\n");
+		fflush(stdout);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+	}
+=======
+float voltageConv(uint16_t adc) {
+	float voltage=0;
+	voltage = *adc * 4.6 / 5;
+	return voltage;
+>>>>>>> 9f6756f62565a14297771ed990d07d1c1675101c
 }
 
 
