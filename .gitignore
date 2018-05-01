@@ -1,2 +1,8 @@
 build/
 sdkconfig.old
+/.metadata/
+<<<<<<< HEAD
+.pioenvs
+.piolibdeps
+=======
+>>>>>>> 9f6756f62565a14297771ed990d07d1c1675101c
