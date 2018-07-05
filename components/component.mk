@@ -1,1 +1,1 @@
-COMPONENT_SRCDIRS:= adc_read ard_to_esp_serial
+COMPONENT_SRCDIRS:= adc_read ard_to_esp_serial wifi_transmit trans_format
