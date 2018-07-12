@@ -79,9 +79,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/lwip/include/lwip&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/espmqtt/include&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/json/cJSON&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/esp-mqtt&quot;"/>
                                     								
                                 </option>
                                 								

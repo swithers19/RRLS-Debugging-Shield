@@ -6,9 +6,20 @@
 #include "../wifi_transmit/wifi_transmit.h"
 #include "../ard_to_esp_serial/ard_to_esp_serial.h"
 
-void uartToJson();
+EventGroupHandle_t transmitGroup;
+const int ADC_READ_BIT;
+const int CONFIG_READ_BIT;
+const int DEBUG_BIT;
+cJSON *configRoot;
+cJSON *adcRoot;
+
+char *adcJsonString;
+char *configJsonString;
+
+void adcToJson();
+void configToJson();
 void jsonToUart();
-void publishConfig();
+void publishConfigTask();
 void handleDebug();
 
 #endif

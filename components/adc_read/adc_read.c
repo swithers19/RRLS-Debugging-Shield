@@ -28,8 +28,6 @@ esp_err_t spiBusInit(spi_bus_config_t* spiBusCfg, int reInit)
 }
 
 
-
-
 esp_err_t spiDeviceConnect(spi_device_interface_config_t* adcCfg, spi_device_handle_t* spiDevHandle, int slavePin)
 {
     esp_err_t ret = -1;
@@ -38,13 +36,11 @@ esp_err_t spiDeviceConnect(spi_device_interface_config_t* adcCfg, spi_device_han
     adcCfg->clock_speed_hz=100000;            //Clock out at 10 MHz
     adcCfg->mode=0;                           //SPI mode 0
 	adcCfg->spics_io_num=slavePin;            //CS pin
-	adcCfg->queue_size=2; 					   //Currently queue 2 transactions
+	adcCfg->queue_size=8; 					   //Currently queue 2 transactions
 
 	ret =spi_bus_add_device(VSPI_HOST, adcCfg, spiDevHandle);
 	return ret;
 }
-
-
 
 
 int spiTransRead(spi_device_handle_t spiDevHandle, uint8_t cmd)
@@ -88,36 +84,42 @@ int tenBitCon(uint8_t* readData)
 }
 
 
-void adcReadTask(void *pvParameters)
-{
-	int i;
-	esp_err_t ret;
-
-	spi_bus_config_t spiBusCfg; 					//Bus config variable
-	spi_device_interface_config_t adcCfg;			//adc1 device interface variable
-    spi_device_handle_t adc1SpiHandle;
-	uint16_t data[8];
-
-	spiBusInit(&spiBusCfg, 0); 	   								//Re/Initialise bus and variables
-	spiDeviceConnect(&adcCfg, &adc1SpiHandle, ADC_1_CS);		//Attach the ADC to the SPI bus
-
-	while(1) {
-		//transaction definition Structure
-		for (i=0; i<8; i++) {
-			data[i] = spiTransRead(adc1SpiHandle, (8+i));
-			printf("Data[%d] %d\n", i, data[i]);
-		}
-		printf("\n");
-		fflush(stdout);
-		vTaskDelay(2000 / portTICK_PERIOD_MS);
-	}
-}
-
-
 float voltageConv(uint16_t adc) {
 	float voltage=0;
 	voltage = adc * 4.6 / 5;
 	return voltage;
 }
+
+
+void adcReadTask(void *pvParameters)
+{
+	int i;
+	esp_err_t ret;
+
+	spi_bus_config_t spiBusCfg = {}; 					//Bus config variable
+	spi_device_interface_config_t adcCfg = {};			//adc1 device interface variable
+    spi_device_handle_t adc1SpiHandle;
+	int data[8];
+
+	spiBusInit(&spiBusCfg, 0); 	   								//Re/Initialise bus and variables
+	spiDeviceConnect(&adcCfg, &adc1SpiHandle, ADC_1_CS);		//Attach the ADC to the SPI bus
+
+	while(1) {
+		xEventGroupWaitBits(transmitGroup, CONFIG_READ_BIT|DEBUG_BIT, false, false, portMAX_DELAY);
+		//transaction definition Structure
+		for (i=0; i<8; i++) {
+			data[i] = spiTransRead(adc1SpiHandle, (8+i));
+			//printf("Data[%d] %d\n", i, data[i]);
+		}
+		adcToJson(&data);
+		//publishConfig();
+		//printf("\n");
+		//fflush(stdout);
+		xEventGroupSetBits(transmitGroup, ADC_READ_BIT);
+	}
+}
+
+
+
 
 

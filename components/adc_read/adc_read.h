@@ -9,18 +9,16 @@
 #include "esp_system.h"
 //GPIO
 #include "driver/gpio.h"
-
-
 //ADC Config
 #include "driver/adc.h"
-
 //SPI
 #include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
 #include "sdkconfig.h"
-
 //Logging
 #include "esp_log.h"
+
+#include "../trans_format/trans_format.h"
 
 #define PIN_NUM_MISO 19
 #define PIN_NUM_MOSI 23

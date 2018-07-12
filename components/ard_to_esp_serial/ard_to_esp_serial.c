@@ -16,16 +16,19 @@ void uartInit() {
     uart_pattern_queue_reset(UART_NUM_2, 20);
 }
 
+
 int sendUartData(const char* logName, const char* data)
 {
     const int len = strlen(data);
+    uart_flush_input(UART_NUM_2);
     const int txBytes = uart_write_bytes(UART_NUM_2, data, len);
-    //ESP_LOGI(logName, "Wrote %d bytes", txBytes);
     return txBytes;
 }
 
+
 void configReq_tx()
 {
+	//wait for wifi and mqtt
 	configSem = xSemaphoreCreateBinary();
 	xSemaphoreGive(configSem);
     static const char *TX_TASK_TAG = "ConfigReqTX";
@@ -37,6 +40,7 @@ void configReq_tx()
     }
 }
 
+
 void Debug_tx()
 {
 	char* debugOutput = (char*)malloc(sizeof(debugSet));
@@ -47,7 +51,7 @@ void Debug_tx()
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     for (;;) {
     	int i = 0;
-        xSemaphoreTake(debugSem,  portMAX_DELAY);
+    	xSemaphoreTake(debugSem,  portMAX_DELAY);
         debugSerialPrep(debugOutput);
         sendUartData(TX_TASK_TAG, debugOutput);
         for (i = 0; i<8;i++) {
@@ -58,6 +62,7 @@ void Debug_tx()
     free(debugOutput);
 }
 
+//Prepares incoming MQTT signals
 void debugSerialPrep(char* serialBuff) {
 	int i;
 	int total = 0;
@@ -73,6 +78,7 @@ void debugSerialPrep(char* serialBuff) {
 }
 
 
+//Rx incoming message handler
 void rx_event_task() {
 	uart_event_t event;
 	size_t buffered_size;
@@ -119,7 +125,7 @@ void rx_event_task() {
 	}
 }
 
-
+//Configuring a struct for the config set-up and transmitting via JSON
 void configProcessing(uint8_t* buffer, int length) {
 	int i,j;
 	uint8_t devCnt = 0;
@@ -133,16 +139,12 @@ void configProcessing(uint8_t* buffer, int length) {
 			conDevices.device[i].id = buffer[(i*9)+3];
 			conDevices.device[i].mode = buffer[(i*9)+4];
 			conDevices.device[i].sensorRead = (buffer[(i*9)+5]<<8) + buffer[(i*9)+6];
-			printf("%d", conDevices.device[i].deviceID);
-			printf("%d", conDevices.device[i].id);
-			printf("%d", conDevices.device[i].mode);
-			printf("%d", conDevices.device[i].sensorRead);
 			for (j= 0; j< 4; j++) {
 				conDevices.device[i].pinArr[j] = buffer[(i*9)+7+j];
-				printf("%d", conDevices.device[i].pinArr[j]);
 			}
 		}
 	}
-	//uartToJson(conDevices, devCnt);
+	configToJson(conDevices, devCnt);
+	xEventGroupSetBits(transmitGroup, CONFIG_READ_BIT);
 	xSemaphoreGive(configSem); //Allow config to send again
 }

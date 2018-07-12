@@ -1,9 +1,8 @@
 #include "wifi_transmit.h"
 
-const int CONNECTED_BIT = BIT0;
-EventGroupHandle_t wifi_event_group;
+const int WIFI_CONNECTED_BIT = BIT0;
+const int MQTT_CONNECTED_BIT = BIT1;
 static const char *TAG = "MQTT_SAMPLE";
-esp_mqtt_client_handle_t client;
 
 //Initialisation of wifi
 void wifiInit(){
@@ -29,97 +28,56 @@ void wifiInit(){
     ESP_ERROR_CHECK(esp_wifi_start());
 	printf("Connecting to %s\n", WIFI_SSID);
 
-	//check
-	xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
+	xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
 }
 
 // Wifi event handler
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
-
 		case SYSTEM_EVENT_STA_START:
 			esp_wifi_connect();
 			printf("Got here\n");
 			break;
 
 		case SYSTEM_EVENT_STA_GOT_IP:
-			xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
+			xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
 			printf("Connected\n");
+			//Connected to esp client
+		    esp_mqtt_start(MQTT_HOST, MQTT_PORT, "ESP32-Client28062018", NULL, NULL);
+		    mqttBit = xEventGroupCreate();
 			break;
-
 		case SYSTEM_EVENT_STA_DISCONNECTED:
-			xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
+			xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+			esp_wifi_connect();
 			printf("Disconnected\n");
 			break;
-
 		default:
 			break;
 		}
 	return ESP_OK;
 }
 
-//MQTT initiation
-void mqtt_app_start(void)
+//Callback function when message arrives
+void mqtt_message_cb(const char *topic, uint8_t *payload, size_t len)
 {
-    const esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = "mqtt://iot.eclipse.org",
-        .event_handle = mqtt_event_handler,
-		.client_id = "ESP32-Client28062018",
-		.task_prio = 24,
-		.task_stack = 30000,
-		.buffer_size = 20000
-        // .user_context = (void *)your_context
-    };
-
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_start(client);
-    ESP_LOGI(TAG, "%s,", mqtt_cfg.client_id);
+    printf("incoming\t%s:%s (%d)\n", topic, payload, (int)len);
 }
 
-//MQTT event handling
-esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
+//Callback function which handles status of MQTT connection
+void mqtt_status_cb(esp_mqtt_status_t status)
 {
-    client = event->client;
-    int msg_id;
-    // your_context_t *context = event->context;
-    switch (event->event_id) {
-        case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-            msg_id = esp_mqtt_client_subscribe(client, "/RRLSsamW/debug", 0);
-            ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-
-            break;
-        case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-            break;
-
-        case MQTT_EVENT_SUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-            msg_id = publishtoTopic("/RRSsamW/config", "data", 0);
-            ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
-            break;
-        case MQTT_EVENT_UNSUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
-            break;
-        case MQTT_EVENT_PUBLISHED:
-            ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
-            break;
-        case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-            printf("DATA=%.*s\r\n", event->data_len, event->data);
-            break;
-        case MQTT_EVENT_ERROR:
-            ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
-            break;
+    switch (status)
+    {
+    case ESP_MQTT_STATUS_CONNECTED:
+        esp_mqtt_subscribe("/RRLSsamW/config", 0);
+        esp_mqtt_subscribe("/RRLSsamW/debug", 0);
+        xEventGroupSetBits(wifi_event_group, MQTT_CONNECTED_BIT);
+        break;
+    case ESP_MQTT_STATUS_DISCONNECTED:
+        esp_mqtt_unsubscribe("/RRLSsamW/config");
+        esp_mqtt_unsubscribe("/RRLSsamW/debug");
+        break;
     }
-    return ESP_OK;
 }
 
-//Publishing config
-int publishtoTopic(const char* topic, const char* data, int queueMsg)
-{
-    int msgID = esp_mqtt_client_publish(client, topic, data, 0, queueMsg, 0);
-    return msgID;
-}

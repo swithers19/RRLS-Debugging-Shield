@@ -31,6 +31,7 @@ typedef struct {
 typedef struct {
 	int id;
 	int mode;
+	int8_t packet[10];
 }debugMode;
 
 typedef struct {
