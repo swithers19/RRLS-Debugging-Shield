@@ -14,14 +14,19 @@
 
 #include "esp_mqtt.h"
 
+#include "../trans_format/trans_format.h"
+
+//#define WIFI_SSID "Anderson"
+//#define WIFI_PASS "alice1012"
+
 //#define WIFI_SSID "BelongTAA4QNQP"
 //#define WIFI_PASS "RXENQ6JR3A"
 
 #define WIFI_SSID "SamsPhone"
 #define WIFI_PASS "Fusion12"
 
-#define MQTT_HOST "iot.eclipse.org"
-#define MQTT_PORT "1883"
+#define MQTT_HOST "m14.cloudmqtt.com"
+#define MQTT_PORT "14898"
 #define MQTT_PASS "cz9PlfBpnNF1"
 #define MQTT_USER "dnqgyvcy"
 

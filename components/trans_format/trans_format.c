@@ -68,13 +68,19 @@ void configToJson(BoardConfig board, int devCnt)
 void publishConfigTask()
 {
 	for(;;) {
+		xEventGroupWaitBits(wifi_event_group, MQTT_CONNECTED_BIT, false, true, portMAX_DELAY);
 		xEventGroupWaitBits(transmitGroup, CONFIG_READ_BIT|ADC_READ_BIT, true, true, portMAX_DELAY);
-		char* jsonString = NULL;
 		cJSON_AddItemToObject(configRoot,"Readings", adcRoot);
+		char* jsonString = NULL;
 		jsonString = cJSON_Print(configRoot);
+		if (jsonString == NULL) {
+			printf("NULL\n");
+		}
+		else {
 		esp_mqtt_publish("/RRLSsamW/config", (uint8_t*)jsonString, strlen(jsonString), 2, false);
-		printf("%s\n", jsonString);
+		}
 		cJSON_Delete(configRoot);
+		configRoot = NULL;
 		free(jsonString);
 	}
 }
@@ -86,10 +92,12 @@ void jsonToUart()
 
 
 
-void handleDebug()
+void handleDebug(const char* jsonDebug)
 {
-
-
+	cJSON* test;
+	test = cJSON_Parse(jsonDebug);
+	printf("Testing stub");
+	cJSON_Delete(test);
 }
 
 

@@ -42,15 +42,13 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
 
 		case SYSTEM_EVENT_STA_GOT_IP:
 			xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
-			printf("Connected\n");
 			//Connected to esp client
-		    esp_mqtt_start(MQTT_HOST, MQTT_PORT, "ESP32-Client28062018", NULL, NULL);
-		    mqttBit = xEventGroupCreate();
+		    esp_mqtt_start(MQTT_HOST, MQTT_PORT, "ESP32-Client28062018", MQTT_USER, MQTT_PASS);
+		    //mqttBit = xEventGroupCreate();
 			break;
 		case SYSTEM_EVENT_STA_DISCONNECTED:
 			xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
-			esp_wifi_connect();
-			printf("Disconnected\n");
+			ESP_ERROR_CHECK(esp_wifi_start());
 			break;
 		default:
 			break;
@@ -61,6 +59,9 @@ esp_err_t event_handler(void *ctx, system_event_t *event)
 //Callback function when message arrives
 void mqtt_message_cb(const char *topic, uint8_t *payload, size_t len)
 {
+	if (strcmp(topic, "/RRLSsamW/debug")==0) {
+		handleDebug(topic);
+	}
     printf("incoming\t%s:%s (%d)\n", topic, payload, (int)len);
 }
 
@@ -75,8 +76,8 @@ void mqtt_status_cb(esp_mqtt_status_t status)
         xEventGroupSetBits(wifi_event_group, MQTT_CONNECTED_BIT);
         break;
     case ESP_MQTT_STATUS_DISCONNECTED:
-        esp_mqtt_unsubscribe("/RRLSsamW/config");
-        esp_mqtt_unsubscribe("/RRLSsamW/debug");
+        xEventGroupClearBits(wifi_event_group, MQTT_CONNECTED_BIT);
+	    esp_mqtt_start(MQTT_HOST, MQTT_PORT, "ESP32-Client28062018", NULL, NULL);
         break;
     }
 }

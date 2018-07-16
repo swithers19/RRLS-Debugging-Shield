@@ -20,6 +20,6 @@ void adcToJson();
 void configToJson();
 void jsonToUart();
 void publishConfigTask();
-void handleDebug();
+void handleDebug(const char* jsonDebug);
 
 #endif

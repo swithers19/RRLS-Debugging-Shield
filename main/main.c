@@ -40,7 +40,7 @@ void app_main()
     xTaskCreate(rx_event_task, "uart_rxEvent_task", 5000, NULL, 13, NULL);
 
     //Transmit task of ADC + config
-    xTaskCreate(publishConfigTask, "publishConfigTask",9182, NULL, 14, NULL);
+    xTaskCreate(publishConfigTask, "publishConfigTask",4096, NULL, 14, NULL);
 }
 
 
