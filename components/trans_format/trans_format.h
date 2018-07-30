@@ -7,6 +7,9 @@
 #include "../ard_to_esp_serial/ard_to_esp_serial.h"
 
 EventGroupHandle_t transmitGroup;
+SemaphoreHandle_t OutputDebugSem;
+
+SemaphoreHandle_t JsonToUart;
 const int ADC_READ_BIT;
 const int CONFIG_READ_BIT;
 const int DEBUG_BIT;
@@ -21,5 +24,6 @@ void configToJson();
 void jsonToUart();
 void publishConfigTask();
 void handleDebug(const char* jsonDebug);
+void publishDebugTask();
 
 #endif

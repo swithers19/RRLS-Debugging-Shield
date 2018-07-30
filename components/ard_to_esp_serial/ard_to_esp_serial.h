@@ -40,14 +40,23 @@ typedef struct {
 	debugMode devDebugSettings[15];
 }debugSet;
 
+
 static const int RX_BUF_SIZE = 1024;
 static QueueHandle_t uart2_queue;
 static SemaphoreHandle_t configSem;
 static SemaphoreHandle_t debugSem;
 static BoardConfig conDevices;
-static debugSet debugOut;
+debugSet debugOut;
+
+EventGroupHandle_t debug_sync_group;
+const int CURR_PROCESS_BIT;
+const int STRUCT_COMPLETE_BIT;
+const int TRANSMIT_BIT;
+const int DEBUG_RUNNING_BIT;
+
 
 void uartInit();
+
 int sendUartData(const char* logName, const char* data);
 
 //Request flag for config data

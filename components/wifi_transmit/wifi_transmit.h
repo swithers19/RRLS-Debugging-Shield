@@ -22,9 +22,14 @@
 //#define WIFI_SSID "BelongTAA4QNQP"
 //#define WIFI_PASS "RXENQ6JR3A"
 
+
+//#define WIFI_SSID "Flux_Member"
+//#define WIFI_PASS "fluxtime5632"
+
 #define WIFI_SSID "SamsPhone"
 #define WIFI_PASS "Fusion12"
 
+#define MQTT_CLIENT_ID "ESP32-a"
 #define MQTT_HOST "m14.cloudmqtt.com"
 #define MQTT_PORT "14898"
 #define MQTT_PASS "cz9PlfBpnNF1"
@@ -36,11 +41,13 @@ const int MQTT_CONNECTED_BIT;
 //mqtt and wifi event bits
 EventGroupHandle_t mqttBit;
 EventGroupHandle_t wifi_event_group;
+
 //esp_mqtt_client_handle_t client;
 static TaskHandle_t task = NULL;
 
 esp_err_t event_handler(void *ctx, system_event_t *event);
 void wifiInit();
+void wifiReinit();
 
 //MQTT callbacks
 void mqtt_status_cb(esp_mqtt_status_t status);

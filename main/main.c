@@ -34,13 +34,13 @@ void app_main()
 
 	//Eventgroup to coordinate tasks
 	transmitGroup = xEventGroupCreate();
-	//xTaskCreate(Debug_tx, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-    xTaskCreate(configReq_tx, "uart_tx_task", 4096, NULL, 12, NULL);
-	xTaskCreate(adcReadTask, "adcReadTask", 4096, NULL, 11, NULL);
-    xTaskCreate(rx_event_task, "uart_rxEvent_task", 5000, NULL, 13, NULL);
+	xTaskCreate(Debug_tx, "uart_tx_task", 1024*2, NULL, 5, NULL);
+	xTaskCreate(configReq_tx, "uart_tx_task", 4096, NULL, 2, NULL);
+	xTaskCreate(adcReadTask, "adcReadTask", 4096, NULL, 1, NULL);
+	xTaskCreate(rx_event_task, "uart_rxEvent_task", 5000, NULL, 3, NULL);
 
     //Transmit task of ADC + config
-    xTaskCreate(publishConfigTask, "publishConfigTask",4096, NULL, 14, NULL);
+    xTaskCreate(publishConfigTask, "publishConfigTask",4096, NULL, 4, NULL);
 }
 
 

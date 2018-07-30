@@ -1,5 +1,11 @@
 #include "ard_to_esp_serial.h"
 
+const int CURR_PROCESS_BIT = BIT0;
+const int STRUCT_COMPLETE_BIT = BIT1;
+const int TRANSMIT_BIT = BIT2;
+const int DEBUG_RUNNING_BIT = BIT3;
+EventGroupHandle_t debug_sync_group = NULL;
+
 void uartInit() {
     const uart_config_t uart_config = {
         .baud_rate = 9600,
@@ -44,22 +50,36 @@ void configReq_tx()
 void Debug_tx()
 {
 	char* debugOutput = (char*)malloc(sizeof(debugSet));
+	TickType_t durDelay = 0;
 	debugSem = xSemaphoreCreateBinary();
-	xSemaphoreGive(debugSem);
-    static const char *TX_TASK_TAG = "DebugTX";
+	debug_sync_group = xEventGroupCreate();
+	EventBits_t transCheck = BIT8;
 
+    static const char *TX_TASK_TAG = "DebugTX";
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
+
     for (;;) {
     	int i = 0;
-    	xSemaphoreTake(debugSem,  portMAX_DELAY);
+    	//New message revieved
+    	xEventGroupWaitBits(debug_sync_group, CURR_PROCESS_BIT, false, true, portMAX_DELAY);
+    	//Format and output data
         debugSerialPrep(debugOutput);
         sendUartData(TX_TASK_TAG, debugOutput);
+        //Print Data
         for (i = 0; i<8;i++) {
-        printf("%d", debugOutput[i]);
-        printf(",");
+        	printf("%d", debugOutput[i]);
+        	printf(",");
+        }
+        transCheck = xEventGroupWaitBits(debug_sync_group, TRANSMIT_BIT, false, true, 2000);
+        if ((transCheck & (CURR_PROCESS_BIT | TRANSMIT_BIT)) == 1) {
+            //Delay to avoid redoing task
+        	durDelay = debugOut.duration;
+            vTaskDelay(durDelay);
+            xEventGroupClearBits(debug_sync_group, TRANSMIT_BIT|CURR_PROCESS_BIT);
         }
     }
     free(debugOutput);
+
 }
 
 //Prepares incoming MQTT signals
@@ -98,21 +118,22 @@ void rx_event_task() {
 				ESP_LOGI("Tag", "[UART PATTERN DETECTED] pos: %d, buffered size: %d", pos, buffered_size);
 				if (pos == -1) {
 					uart_flush_input(UART_NUM_2);
-				} else {
+				}
+				else {
 					uart_read_bytes(UART_NUM_2, dtmp, pos, 10 / portTICK_PERIOD_MS);
 					uint8_t pat[2 + 1];
 					memset(pat, 0, sizeof(pat));
 					uart_read_bytes(UART_NUM_2, pat, 2, 10 / portTICK_PERIOD_MS);
-					ESP_LOGI("Tag", "read data: %s", dtmp);
-					ESP_LOGI("Tag", "read pat : %s", pat);
 					//Configuration Detail flag
 					if (dtmp[0] =='^' ) {
 						configProcessing(dtmp, pos);
 						ESP_LOGI("Dev", "read pat : %s", pat);
 					}
 					//Debug Flag
-					else if (dtmp[0] == '~') {
-						xSemaphoreGive(debugSem);
+					else if (dtmp[pos-2] == '~') {
+						xEventGroupSetBits(debug_sync_group, TRANSMIT_BIT);
+						ESP_LOGI("Debug:", "Received ~");
+				    	//set debugbit in transmit group
 					}
 				}
 				break;

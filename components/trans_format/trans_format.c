@@ -18,9 +18,6 @@ void adcToJson(uint16_t **adcArray)
 		cJSON *reading = cJSON_CreateNumber((int)adcArray[i]);
 		cJSON_AddItemToArray(readings, reading);
 	}
-	/*adcJsonString = cJSON_Print(adcRoot);
-	printf("%s\n", adcJsonString);
-	cJSON_Delete(adcRoot);*/
 }
 
 //Config UART data to JSON format for transmission
@@ -28,7 +25,6 @@ void configToJson(BoardConfig board, int devCnt)
 {
     //char *configJsonString = NULL;
     int i= 0, j = 0;
-
     //initiate JSON object
     configRoot  = cJSON_CreateObject();
     cJSON_AddStringToObject(configRoot, "Mode", "Config");
@@ -77,7 +73,7 @@ void publishConfigTask()
 			printf("NULL\n");
 		}
 		else {
-		esp_mqtt_publish("/RRLSsamW/config", (uint8_t*)jsonString, strlen(jsonString), 2, false);
+			esp_mqtt_publish("/RRLSsamW/config", (uint8_t*)jsonString, strlen(jsonString), 2, false);
 		}
 		cJSON_Delete(configRoot);
 		configRoot = NULL;
@@ -85,19 +81,36 @@ void publishConfigTask()
 	}
 }
 
-void jsonToUart()
-{
 
-}
-
-
-
+//Handle incoming debug JSON
 void handleDebug(const char* jsonDebug)
 {
-	cJSON* test;
-	test = cJSON_Parse(jsonDebug);
-	printf("Testing stub");
-	cJSON_Delete(test);
+	//xSemaphoreTake(JsonToUart, portMAX_DELAY);
+	cJSON* debugJSON = NULL;
+	cJSON* periphIterator = NULL;
+	char* debugString = NULL;
+	int i = 0;
+	debugOut.duration = 0;
+	debugJSON = cJSON_Parse(jsonDebug);
+	if (debugJSON != NULL) {
+		debugOut.duration = cJSON_GetObjectItemCaseSensitive(debugJSON, "duration")->valueint;
+		debugOut.cnt = cJSON_GetObjectItemCaseSensitive(debugJSON, "count")->valueint;
+		periphIterator = cJSON_GetObjectItemCaseSensitive(debugJSON, "peripherals");
+		cJSON_ArrayForEach(debugJSON, periphIterator) {
+			debugOut.devDebugSettings[i].id = cJSON_GetObjectItemCaseSensitive(debugJSON, "id")->valueint;
+			debugOut.devDebugSettings[i].mode = cJSON_GetObjectItemCaseSensitive(debugJSON, "mode")->valueint;
+			if (debugOut.devDebugSettings[i].mode > 10) {
+				//debugOut.devDebugSettings[i].packet = cJSON_GetObjectItemCaseSensitive(debugJSON, "payload")->valueint;
+			}
+			i++;
+		}
+		debugString = cJSON_Print(debugJSON);
+		if (debugString != NULL) {
+			printf("%s\n", debugString);
+		}
+	}
+	cJSON_Delete(debugJSON);
+	free(debugString);
 }
 
 
