@@ -100,6 +100,7 @@ void debugSerialPrep(char* serialBuff) {
 
 //Rx incoming message handler
 void rx_event_task() {
+	TickType_t durDelay = 200;
 	uart_event_t event;
 	size_t buffered_size;
 	uint8_t* dtmp = (uint8_t*) malloc(1024);
@@ -141,6 +142,7 @@ void rx_event_task() {
 				ESP_LOGI("Tag", "uart event type: %d", event.type);
 				break;
 			}
+			vTaskDelay(durDelay);
 		}
 
 	}

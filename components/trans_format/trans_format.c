@@ -3,7 +3,7 @@
 const int ADC_READ_BIT = BIT0;
 const int CONFIG_READ_BIT = BIT1;
 const int DEBUG_BIT = BIT2;
-const char* deviceLookup[] = {"LED", "Ultrasonic Sensor", "LED Matrix", "Temperature Sensor"};
+const char* deviceLookup[] = {"LED", "Ultrasonic Sensor", "Temperature Sensor", "Switch", "LED Matrix"};
 char *adcJsonString = NULL;
 char *configJsonString = NULL;
 

@@ -95,7 +95,6 @@ void adcReadTask(void *pvParameters)
 {
 	int i;
 	esp_err_t ret;
-
 	spi_bus_config_t spiBusCfg = {}; 					//Bus config variable
 	spi_device_interface_config_t adcCfg = {};			//adc1 device interface variable
     spi_device_handle_t adc1SpiHandle;
@@ -112,9 +111,6 @@ void adcReadTask(void *pvParameters)
 			//printf("Data[%d] %d\n", i, data[i]);
 		}
 		adcToJson(&data);
-		//publishConfig();
-		//printf("\n");
-		//fflush(stdout);
 		xEventGroupSetBits(transmitGroup, ADC_READ_BIT);
 	}
 }
