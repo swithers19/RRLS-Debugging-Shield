@@ -73,7 +73,7 @@ void publishConfigTask()
 			printf("NULL\n");
 		}
 		else {
-			esp_mqtt_publish("/RRLSsamW/config", (uint8_t*)jsonString, strlen(jsonString), 2, false);
+			esp_mqtt_publish("/RRLSsamW/config", (uint8_t*)jsonString, strlen(jsonString), 0, false);
 		}
 		cJSON_Delete(configRoot);
 		configRoot = NULL;

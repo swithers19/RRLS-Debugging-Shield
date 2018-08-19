@@ -19,15 +19,15 @@
 //#define WIFI_SSID "Anderson"
 //#define WIFI_PASS "alice1012"
 
-#define WIFI_SSID "BelongTAA4QNQP"
-#define WIFI_PASS "RXENQ6JR3A"
+//#define WIFI_SSID "BelongTAA4QNQP"
+//#define WIFI_PASS "RXENQ6JR3A"
 
 
 //#define WIFI_SSID "Flux_Member"
 //#define WIFI_PASS "fluxtime5632"
 
-//#define WIFI_SSID "SamsPhone"
-//#define WIFI_PASS "Fusion12"
+#define WIFI_SSID "SamsPhone"
+#define WIFI_PASS "Fusion12"
 
 #define MQTT_CLIENT_ID "ESP32-a"
 #define MQTT_HOST "m14.cloudmqtt.com"
