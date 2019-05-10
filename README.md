@@ -13,6 +13,7 @@ This resulted in the following PCB, with the pcb design and resulting board seen
 ![PCB Design and Board](https://raw.githubusercontent.com/swithers19/RRLS-Debugging-Shield/master/docs/hardware/PCB-Board.png)
 
 
+
 # Software
 The code running on the ESP32 was written in C utiling the ESP-IDF. This provided an FreeRTOS to better organise the flow of tasks and minimise downtime. There were four main pieces of functionality:
 - Serial Communication with Learning Device
