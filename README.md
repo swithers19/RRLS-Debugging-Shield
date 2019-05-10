@@ -10,7 +10,6 @@ The hardware element is relatively simple, with external ADC's, level shifting b
 
 This resulted in the following PCB, with the pcb design and resulting board seen below:
 
-Resulting Debugging Shield:
 ![PCB Design and Board](https://raw.githubusercontent.com/swithers19/RRLS-Debugging-Shield/master/docs/hardware/PCB-Board.png)
 
 
